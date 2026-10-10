@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Appium Mini Task Suite" verbose="1">
+
+    <!-- Phase 2: built-in app + real APK on the emulator -->
+    <test name="Phase2 - Built-in app and APK">
+        <classes>
+            <class name="com.mahmoud.appium.phase2.BuiltInAppTest"/>
+            <class name="com.mahmoud.appium.phase2.ApkInstallTest"/>
+        </classes>
+    </test>
+
+    <!-- Phase 3: real device + mobile gestures -->
+    <test name="Phase3 - Real device and gestures">
+        <classes>
+            <class name="com.mahmoud.appium.phase3.RealDeviceTest"/>
+            <class name="com.mahmoud.appium.phase3.TapGestureTest"/>
+            <class name="com.mahmoud.appium.phase3.ScrollGestureTest"/>
+            <class name="com.mahmoud.appium.phase3.SlideGestureTest"/>
+            <class name="com.mahmoud.appium.phase3.DragAndDropGestureTest"/>
+        </classes>
+    </test>
+
+    <!-- Phase 4: mobile web automation in Chrome -->
+    <test name="Phase4 - Chrome web test">
+        <classes>
+            <class name="com.mahmoud.appium.phase4.ChromeWebTest"/>
+        </classes>
+    </test>
+
+</suite>

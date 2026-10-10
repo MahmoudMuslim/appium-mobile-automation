@@ -1,0 +1,3 @@
+# Place the ApiDemos-debug.apk file in this folder.
+# Download: https://github.com/appium/android-apidemos/releases
+# The file is ignored by git (see .gitignore) to keep the repository small.

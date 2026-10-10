@@ -1,0 +1,20 @@
+# ---- Build output ----
+target/
+
+# ---- IDE ----
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# ---- OS ----
+Thumbs.db
+.DS_Store
+
+# ---- Appium / test artifacts ----
+apps/*.apk
+!apps/.gitkeep
+target/screenshots/
+*.log

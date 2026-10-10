@@ -1,0 +1,38 @@
+WARN AppiumDoctor [Deprecated] Please use appium-doctor installed with "npm install @appium/doctor --location=global"
+info AppiumDoctor Appium Doctor v.1.16.2
+info AppiumDoctor ### Diagnostic for necessary dependencies starting ###
+(node:13104) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+info AppiumDoctor  Γ£ö The Node.js binary was found at: C:\Program Files\nodejs\node.EXE
+info AppiumDoctor  Γ£ö Node version is 24.19.0
+info AppiumDoctor  Γ£ö ANDROID_HOME is set to: C:\Users\m2524\AppData\Local\Android\Sdk
+info AppiumDoctor  Γ£ö JAVA_HOME is set to: C:\Program Files\Android\Android Studio\jbr
+info AppiumDoctor    Checking adb, android, emulator, apkanalyzer.bat
+info AppiumDoctor      'adb' is in C:\Users\m2524\AppData\Local\Android\Sdk\platform-tools\adb.exe
+info AppiumDoctor      'android' is in C:\Users\m2524\AppData\Local\Android\Sdk\android.bat
+info AppiumDoctor      'emulator' is in C:\Users\m2524\AppData\Local\Android\Sdk\emulator\emulator.exe
+info AppiumDoctor      'apkanalyzer.bat' is in C:\Users\m2524\AppData\Local\Android\Sdk\cmdline-tools\latest\bin\apkanalyzer.bat
+info AppiumDoctor  Γ£ö adb, android, emulator, apkanalyzer.bat exist: C:\Users\m2524\AppData\Local\Android\Sdk
+info AppiumDoctor  Γ£ö 'bin' subfolder exists under 'C:\Program Files\Android\Android Studio\jbr'
+info AppiumDoctor ### Diagnostic for necessary dependencies completed, no fix needed. ###
+info AppiumDoctor 
+info AppiumDoctor ### Diagnostic for optional dependencies starting ###
+WARN AppiumDoctor  Γ£û opencv4nodejs cannot be found.
+info AppiumDoctor  Γ£ö ffmpeg is installed at: C:\ProgramData\chocolatey\bin\ffmpeg.EXE. ffmpeg version 8.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers
+WARN AppiumDoctor  Γ£û mjpeg-consumer cannot be found.
+WARN AppiumDoctor  Γ£û bundletool.jar cannot be found
+WARN AppiumDoctor  Γ£û gst-launch-1.0.exe and/or gst-inspect-1.0.exe cannot be found
+info AppiumDoctor ### Diagnostic for optional dependencies completed, 4 fixes possible. ###
+info AppiumDoctor 
+info AppiumDoctor ### Optional Manual Fixes ###
+info AppiumDoctor The configuration can install optionally. Please do the following manually:
+WARN AppiumDoctor  Γ₧£ Why opencv4nodejs is needed and how to install it: http://appium.io/docs/en/writing-running-appium/image-comparison/
+WARN AppiumDoctor  Γ₧£ mjpeg-consumer module is required to use MJPEG-over-HTTP features. Please install it with 'npm i -g mjpeg-consumer'.
+WARN AppiumDoctor  Γ₧£ bundletool.jar is used to handle Android App Bundle. Please read http://appium.io/docs/en/writing-running-appium/android/android-appbundle/ to install it. Also consider adding the ".jar" extension into your PATHEXT environment variable in order to fix the problem for Windows
+WARN AppiumDoctor  Γ₧£ gst-launch-1.0.exe and gst-inspect-1.0.exe are used to stream the screen of the device under test. Please read https://appium.io/docs/en/writing-running-appium/android/android-screen-streaming/ to install them and for more details
+info AppiumDoctor 
+info AppiumDoctor ###
+info AppiumDoctor 
+info AppiumDoctor Bye! Run appium-doctor again when all manual fixes have been applied!
+info AppiumDoctor 
+
