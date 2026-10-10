@@ -154,3 +154,74 @@ Also note: `UiAutomator2Options` has no `setBrowserName`; set it via
 Running `mvn test -Dtest=SomeTest` bypasses `testng.xml`, so only that class
 runs. To run one class **but still use the suite definition**, run the full
 suite: `mvn test` (all 8 classes).
+
+---
+
+## 9. AVD exists but will not boot: system image missing
+
+The AVD was created, but its system image folder was empty, so the emulator
+died immediately:
+
+```
+FATAL | Cannot find AVD system path. Please define ANDROID_SDK_ROOT
+WARNING | ...\system-images\android-36.1\google_apis_playstore\x86_64\ is not a valid directory.
+```
+
+Install the image that matches the AVD's `image.sysdir` in `config.ini`:
+
+```powershell
+sdkmanager "system-images;android-36.1;google_apis_playstore;x86_64"
+```
+
+**Caveat:** this download (~2.4 GB) failed repeatedly with
+`Remote host terminated the handshake`, and left behind a `.installer` stub —
+the folder exists but `system.img` does not. Verify the *contents*, not just
+the folder:
+
+```powershell
+Test-Path "$env:ANDROID_HOME\system-images\android-36.1\google_apis_playstore\x86_64\system.img"
+```
+
+If the download keeps dying, install it from **Android Studio → SDK Manager →
+SDK Platforms** instead of the CLI; that path retries chunks reliably.
+
+---
+
+## 10. Google Play AVD images ship no Google Calculator
+
+The mini task expects the built-in Calculator app, but a
+`google_apis_playstore` image does **not** contain
+`com.google.android.calculator`. Workarounds that do *not* work:
+
+- Play Store route — opens `market://details?id=com.google.android.calculator`
+  but demands a Google account sign-in.
+- `f-droid.org` — Google's Calculator is proprietary and not published there.
+- Direct APK mirrors (APKMirror, `dl.google.com`) — blocked / 404 on this network.
+
+**What was done instead:** the emulator built-in-app scenario targets **Google
+Clock** (`com.google.android.deskclock`), which ships on every image:
+
+```properties
+clock.appPackage=com.google.android.deskclock
+clock.appActivity=com.android.deskclock.DeskClock
+```
+
+`BuiltInAppEmulatorTest` launches it, taps the **Timer** tab and asserts the
+tab became selected. If your AVD *does* ship Google Calculator, run
+`mvn test -Dtest=BuiltInAppTest` instead.
+
+---
+
+## 11. `By.accessibilityId` does not exist
+
+Plain Selenium `org.openqa.selenium.By` has no `accessibilityId`. It lives in
+Appium's own locator factory:
+
+```java
+import io.appium.java_client.AppiumBy;
+By tab = AppiumBy.accessibilityId("Timer");   // maps to content-desc
+```
+
+Related Appium-specific locators: `AppiumBy.id()`, `AppiumBy.xpath()`,
+`AppiumBy.androidUIAutomator(new UiSelector().text("Views"))`,
+`AppiumBy.accessibilityId()`.
