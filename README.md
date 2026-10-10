@@ -11,6 +11,9 @@ the **Appium Java Client 9**, **TestNG** and **Maven**. The project covers the f
 | 4 | Mobile web test in Chrome | `ChromeWebTest` |
 | 5 | Appium Java cheat sheet | [`docs/appium-java-cheatsheet.md`](docs/appium-java-cheatsheet.md) |
 
+> Real-world Windows/real-device issues and how they were solved are documented in
+> [`docs/setup-notes.md`](docs/setup-notes.md).
+
 ---
 
 ## 1. Project structure
@@ -208,7 +211,8 @@ mvn test "-Dtest=ApkInstallTest,TapGestureTest,ScrollGestureTest,SlideGestureTes
 
 ### Verified results (real device: Xiaomi 24117RN76G, Android 16 / MIUI)
 
-Every scenario was executed against a physically connected phone and passed:
+The full suite was executed end-to-end against a physically connected phone in a
+single run — `mvn test` → **Tests run: 8, Failures: 0, Errors: 0** (BUILD SUCCESS, ~127 s).
 
 | Test class | Result |
 |------------|--------|
