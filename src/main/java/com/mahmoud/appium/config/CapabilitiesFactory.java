@@ -48,6 +48,20 @@ public final class CapabilitiesFactory {
     }
 
     /**
+     * Capabilities for the pre-installed Google Clock app.
+     * Google Play AVD images do not always ship Google Calculator, so the Clock
+     * (DeskClock) is used as the built-in-app scenario on the emulator.
+     */
+    public static UiAutomator2Options builtInClockApp() {
+        return common()
+                // appPackage + appActivity launch an already-installed app.
+                .setAppPackage(ConfigReader.get("clock.appPackage"))
+                .setAppActivity(ConfigReader.get("clock.appActivity"))
+                // noReset keeps app data between runs (faster, no re-install).
+                .setNoReset(true);
+    }
+
+    /**
      * Capabilities that target a physical device instead of the emulator.
      * It reuses the built-in app config but pins the device via {@code udid}.
      */

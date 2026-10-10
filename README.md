@@ -6,7 +6,7 @@ the **Appium Java Client 9**, **TestNG** and **Maven**. The project covers the f
 | Phase | What it contains | Test class(es) |
 |-------|------------------|----------------|
 | 1 | Windows/Android environment setup | `README.md` (this file) + [`docs/appium-doctor-output.txt`](docs/appium-doctor-output.txt) |
-| 2 | Built-in app test + real APK test | `BuiltInAppTest`, `ApkInstallTest` |
+| 2 | Built-in app test + real APK test | `BuiltInAppEmulatorTest` / `BuiltInAppTest`, `ApkInstallTest` |
 | 3 | Real device run + 4 gestures | `RealDeviceTest`, `TapGestureTest`, `ScrollGestureTest`, `SlideGestureTest`, `DragAndDropGestureTest` |
 | 4 | Mobile web test in Chrome | `ChromeWebTest` |
 | 5 | Appium Java cheat sheet | [`docs/appium-java-cheatsheet.md`](docs/appium-java-cheatsheet.md) |
@@ -24,6 +24,7 @@ the **Appium Java Client 9**, **TestNG** and **Maven**. The project covers the f
 ├── docs/
 │   ├── appium-java-cheatsheet.md          # Phase 5 deliverable
 │   ├── appium-doctor-output.txt           # Phase 1 evidence (all necessary checks green)
+│   ├── setup-notes.md                     # real-world troubleshooting notes
 │   └── screenshots/                       # captured evidence for every scenario
 ├── src
 │   ├── main/java/com/mahmoud/appium
@@ -33,6 +34,7 @@ the **Appium Java Client 9**, **TestNG** and **Maven**. The project covers the f
 │   │   ├── pages                          # Page Objects
 │   │   │   ├── BasePage.java
 │   │   │   ├── CalculatorPage.java
+│   │   │   ├── ClockPage.java             # built-in Google Clock (emulator scenario)
 │   │   │   ├── ApiDemosPage.java
 │   │   │   └── ChromeLoginPage.java
 │   │   └── utils
@@ -46,7 +48,8 @@ the **Appium Java Client 9**, **TestNG** and **Maven**. The project covers the f
 │       │   └── phase4/ChromeWebTest.java
 │       └── resources/config.properties    # device + app configuration
 ├── pom.xml
-└── testng.xml
+├── testng.xml                             # device-neutral suite
+└── testng-emulator.xml                    # emulator-only suite (Google Play image)
 ```
 
 ---
@@ -164,7 +167,9 @@ mvn test
 
 Run a single phase/scenario with TestNG + Surefire:
 ```powershell
-# Phase 2 - built-in app
+# Phase 2 - built-in app on the emulator (Google Clock)
+mvn test -Dtest=BuiltInAppEmulatorTest
+# Phase 2 - built-in app (Google Calculator)
 mvn test -Dtest=BuiltInAppTest
 # Phase 2 - APK
 mvn test -Dtest=ApkInstallTest
@@ -181,6 +186,21 @@ mvn test -Dtest=ChromeWebTest
 
 > When running a single `-Dtest=...` class, Surefire ignores `testng.xml`, so the
 > other classes are not executed.
+
+### Running the emulator suite
+
+Google Play AVD images (e.g. `google_apis_playstore`) do **not** ship Google
+Calculator, so the emulator built-in-app scenario uses the pre-installed **Google
+Clock** instead. Run both emulator scenarios with:
+
+```powershell
+mvn test -Dsurefire.suiteXmlFiles=testng-emulator.xml
+```
+
+If your AVD **does** have Google Calculator, run it directly:
+```powershell
+mvn test -Dtest=BuiltInAppTest
+```
 
 ### Running on a real device (example: Xiaomi / MIUI)
 
@@ -230,11 +250,15 @@ single run — `mvn test` → **Tests run: 8, Failures: 0, Errors: 0** (BUILD SU
 ## 6. Test scenarios
 
 ### Phase 2
+- **`BuiltInAppEmulatorTest#openTimerTabInBuiltInClock`** — launches the pre-installed
+  Google Clock app, opens the **Timer** tab and asserts the tab became selected.
+  This is the emulator (AVD) built-in-app scenario.
 - **`BuiltInAppTest#addTwoNumbersInBuiltInCalculator`** — launches the built-in
-  Android Calculator, computes `7 + 3` and asserts the result is `10`.
+  Android Calculator, computes `7 + 3` and asserts the result is `10`. Used on
+  devices/images that ship Google Calculator.
 - **`ApkInstallTest#installApkNavigateAndToggleCheckbox`** — installs
   `ApiDemos-debug.apk`, navigates `Views → Controls` and toggles `Checkbox 1`
-  (three element interactions).
+  (three element interactions). Runs on both emulator and real device.
 
 ### Phase 3
 - **`RealDeviceTest`** — the Calculator scenario on a physical device.
@@ -273,12 +297,13 @@ relevant `*Page` class after inspecting the screen.
 
 - [x] Public GitHub repository with all test scripts + this README.
 - [x] `appium-doctor --android` output — [`docs/appium-doctor-output.txt`](docs/appium-doctor-output.txt).
-- [x] Built-in app screenshot — `docs/screenshots/phase2-builtin-calculator-*.png`
-- [x] APK screenshot — `docs/screenshots/phase2-apk-checkbox-*.png`
-- [x] Real-device screenshot — `docs/screenshots/phase3-real-device-calculator-*.png`
-- [x] Gesture screenshots — `phase3-gesture-tap`, `phase3-gesture-scroll`, `phase3-gesture-slide`, `phase3-gesture-drag-drop`
-- [x] Chrome web screenshot — `docs/screenshots/phase4-chrome-web-*.png`
+- [x] Built-in app screenshot **on the AVD emulator** — [`docs/screenshots/phase2-builtin-app-emulator-clock.png`](docs/screenshots/phase2-builtin-app-emulator-clock.png)
+- [x] Built-in Calculator screenshot (device with Google Calculator) — `docs/screenshots/phase2-builtin-calculator.png`
+- [x] APK screenshot **on the AVD emulator** — [`docs/screenshots/phase2-apk-checkbox.png`](docs/screenshots/phase2-apk-checkbox.png)
+- [x] Real-device screenshot — [`docs/screenshots/phase3-real-device-calculator.png`](docs/screenshots/phase3-real-device-calculator.png)
+- [x] Gesture screenshots — [`tap`](docs/screenshots/phase3-gesture-tap.png), [`scroll`](docs/screenshots/phase3-gesture-scroll.png), [`slide`](docs/screenshots/phase3-gesture-slide.png), [`drag & drop`](docs/screenshots/phase3-gesture-drag-drop.png)
+- [x] Chrome web screenshot — [`docs/screenshots/phase4-chrome-web.png`](docs/screenshots/phase4-chrome-web.png)
 - [x] `docs/appium-java-cheatsheet.md` (Phase 5).
 
 Screenshots are written automatically to `target/screenshots/` while the tests run;
-the curated set above lives in `docs/screenshots/`.
+the curated, human-named set above lives in `docs/screenshots/`.
