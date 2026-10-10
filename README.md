@@ -14,6 +14,17 @@ the **Appium Java Client 9**, **TestNG** and **Maven**. The project covers the f
 > Real-world Windows/real-device issues and how they were solved are documented in
 > [`docs/setup-notes.md`](docs/setup-notes.md).
 
+### Evidence
+
+| | | |
+|---|---|---|
+| ![Built-in app (emulator)](docs/screenshots/phase2-builtin-app-emulator-clock.png) | ![APK test (emulator)](docs/screenshots/phase2-apk-checkbox.png) | ![Real device](docs/screenshots/phase3-real-device-calculator.png) |
+| **Phase 2** — built-in Google Clock on the AVD | **Phase 2** — ApiDemos APK on the AVD | **Phase 3** — Calculator on the physical device |
+| ![Tap](docs/screenshots/phase3-gesture-tap.png) | ![Scroll](docs/screenshots/phase3-gesture-scroll.png) | ![Slide](docs/screenshots/phase3-gesture-slide.png) |
+| **Phase 3** — Tap gesture | **Phase 3** — Scroll gesture | **Phase 3** — Slide gesture |
+| ![Drag & drop](docs/screenshots/phase3-gesture-drag-drop.png) | ![Chrome](docs/screenshots/phase4-chrome-web.png) | ![Calculator](docs/screenshots/phase2-builtin-calculator.png) |
+| **Phase 3** — Drag & drop | **Phase 4** — Chrome web test | **Phase 2** — Calculator 7 + 3 = 10 |
+
 ---
 
 ## 1. Project structure
@@ -79,19 +90,35 @@ Install the following and add them to `PATH`.
 
 5. **Android Studio + SDK**
    - Install Android Studio, then in **SDK Manager** install `Android SDK Platform`, `Android SDK Platform-Tools`, `Android SDK Build-Tools` and `Android SDK Command-line Tools`.
-   - Create an **AVD** in **Device Manager** (e.g. Pixel 6, API 33).
+   - Also install a **system image** (e.g. `Android 36.1 → Google Play → x86_64`). An AVD
+     created without its system image will **not boot** — see
+     [`docs/setup-notes.md` §9](docs/setup-notes.md).
+   - Create an **AVD** in **Device Manager** (this project used `Medium_Phone_API_36.1`,
+     a Google Play image, API 36.1).
    - Set the environment variables:
      ```
      ANDROID_HOME = %LOCALAPPDATA%\Android\Sdk
      ANDROID_SDK_ROOT = %LOCALAPPDATA%\Android\Sdk
-     JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-17
+     JAVA_HOME = C:\Program Files\Android\Android Studio\jbr
      PATH = ...;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\emulator;%JAVA_HOME%\bin
      ```
+     On Windows, set them with:
+     ```powershell
+     [Environment]::SetEnvironmentVariable('ANDROID_HOME',"$env:LOCALAPPDATA\Android\Sdk",'User')
+     [Environment]::SetEnvironmentVariable('ANDROID_SDK_ROOT',"$env:LOCALAPPDATA\Android\Sdk",'User')
+     [Environment]::SetEnvironmentVariable('JAVA_HOME','C:\Program Files\Android\Android Studio\jbr','User')
+     ```
+     The **Appium server process** must inherit these, or session creation fails with
+     *"Neither ANDROID_HOME nor ANDROID_SDK_ROOT environment variable was exported"*.
    - Verify:
      ```powershell
      adb devices
      emulator -list-avds
      ```
+
+   > **Note:** a `google_apis_playstore` image does **not** contain Google Calculator.
+   > The emulator built-in-app scenario therefore uses the pre-installed
+   > **Google Clock** — see [Running the emulator suite](#running-the-emulator-suite).
 
 6. **appium-doctor** — confirm the setup is clean
    ```powershell
@@ -103,7 +130,13 @@ Install the following and add them to `PATH`.
    (deliverable). Optional-dependency warnings (opencv4nodejs, mjpeg-consumer,
    bundletool, gstreamer) are informational only.
 
-7. **Maven** — https://maven.apache.org/download.cgi (or use the one bundled with your IDE).
+7. **Maven** — https://maven.apache.org/download.cgi
+   - `winget` has **no** Apache.Maven package, so install the binary zip manually:
+     extract to e.g. `C:\Tools\apache-maven-3.9.9`, then:
+     ```powershell
+     [Environment]::SetEnvironmentVariable('MAVEN_HOME','C:\Tools\apache-maven-3.9.9','User')
+     # then add %MAVEN_HOME%\bin to the user PATH
+     ```
    - Verify: `mvn -v`.
 
 ### Getting the APK under test
@@ -137,11 +170,15 @@ feature enabled — Appium 3 requires the driver-qualified name:
 appium --allow-insecure "*:chromedriver_autodownload"
 ```
 
-Start the emulator (or connect a phone):
+Start the emulator (or connect a phone by USB with USB Debugging enabled):
 ```powershell
-emulator -avd <AVD_NAME>
+emulator -avd Medium_Phone_API_36.1
 adb devices
 ```
+
+> Tip: `-Dtest=...` and `mvn test` both honour the `deviceName`/`udid` in
+> `config.properties`, so you can keep the emulator on `emulator-5554` and the
+> phone on its udid and switch by passing `-Dudid=...`.
 
 ---
 
@@ -152,9 +189,20 @@ overridden from the command line with `-Dkey=value`, for example:
 
 ```powershell
 mvn test -DdeviceName=emulator-5554
-mvn test -DplatformVersion=14.0
+mvn test -DplatformVersion=16.0
 mvn test -Dudid=RF8M123ABCD        # target a specific real device
 ```
+
+Key groups:
+
+| Prefix | Purpose |
+|--------|---------|
+| `appium.server.url` | Appium server endpoint |
+| `deviceName`, `udid`, `platformVersion` | Device targeting |
+| `calculator.*` | Calculator package/activity + element ids (vendor-specific) |
+| `clock.*` | Google Clock package/activity (emulator built-in-app scenario) |
+| `apidemos.*` | APK path, package and activity |
+| `chrome.*` | URL and credentials for the web test |
 
 ---
 
@@ -229,21 +277,36 @@ mvn test "-Dtest=ApkInstallTest,TapGestureTest,ScrollGestureTest,SlideGestureTes
 - Screenshots taken by the tests: `target/screenshots/`
 - The final, curated screenshots are committed under [`docs/screenshots/`](docs/screenshots/).
 
-### Verified results (real device: Xiaomi 24117RN76G, Android 16 / MIUI)
+### Verified results
 
-The full suite was executed end-to-end against a physically connected phone in a
-single run — `mvn test` → **Tests run: 8, Failures: 0, Errors: 0** (BUILD SUCCESS, ~127 s).
+**Real device — Xiaomi 24117RN76G, Android 16 / MIUI, udid `4lucqgjfssinxg95`**
 
-| Test class | Result |
-|------------|--------|
-| `BuiltInAppTest` | PASS (7 + 3 = 10) |
-| `ApkInstallTest` | PASS |
-| `RealDeviceTest` | PASS |
-| `TapGestureTest` | PASS |
-| `ScrollGestureTest` | PASS |
-| `SlideGestureTest` | PASS |
-| `DragAndDropGestureTest` | PASS |
-| `ChromeWebTest` | PASS (SauceDemo in Chrome) |
+The full suite ran end-to-end against the physically connected phone in a single
+run — `mvn test` → **Tests run: 8, Failures: 0, Errors: 0** (BUILD SUCCESS, ~127 s).
+
+| Test class | Result | Evidence |
+|------------|--------|----------|
+| `BuiltInAppTest` (MIUI Calculator, 7 + 3 = 10) | PASS | `phase2-builtin-calculator.png` |
+| `ApkInstallTest` | PASS | `phase2-apk-checkbox.png` |
+| `RealDeviceTest` | PASS | `phase3-real-device-calculator.png` |
+| `TapGestureTest` | PASS | `phase3-gesture-tap.png` |
+| `ScrollGestureTest` | PASS | `phase3-gesture-scroll.png` |
+| `SlideGestureTest` | PASS | `phase3-gesture-slide.png` |
+| `DragAndDropGestureTest` | PASS | `phase3-gesture-drag-drop.png` |
+| `ChromeWebTest` (SauceDemo in Chrome) | PASS | `phase4-chrome-web.png` |
+
+**AVD emulator — `Medium_Phone_API_36.1` (Google Play image, Android 16), udid `emulator-5554`**
+
+```powershell
+mvn test -Dsurefire.suiteXmlFiles=testng-emulator.xml
+```
+
+| Test class | Result | Evidence |
+|------------|--------|----------|
+| `BuiltInAppEmulatorTest` (Google Clock → Timer tab) | PASS | `phase2-builtin-app-emulator-clock.png` |
+| `ApkInstallTest` (ApiDemos → Checkbox 1) | PASS | `phase2-apk-checkbox.png` |
+
+All screenshots referenced above are in [`docs/screenshots/`](docs/screenshots/).
 
 ---
 
