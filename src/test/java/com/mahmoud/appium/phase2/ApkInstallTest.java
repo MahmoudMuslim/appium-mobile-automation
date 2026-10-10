@@ -40,6 +40,8 @@ public class ApkInstallTest extends BaseTest {
 
         // Interaction 3: open a concrete theme; this screen holds the real widgets.
         apiDemos.openMenu("1. Light Theme");
+        Assert.assertTrue(apiDemos.isWidgetLabelDisplayed("Checkbox 1"),
+                "The Controls widget screen did not load");
 
         // Interaction 4: toggle a checkbox and verify it became checked.
         WebElement checkbox = driver.findElement(apiDemos.checkbox1());

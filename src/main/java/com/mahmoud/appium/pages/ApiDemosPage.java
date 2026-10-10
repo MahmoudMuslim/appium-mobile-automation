@@ -70,4 +70,18 @@ public class ApiDemosPage extends BasePage {
     public boolean isMenuItemDisplayed(String label) {
         return isDisplayed(menuItem(label));
     }
+
+    /**
+     * XPath locator for a widget label on the "Controls" theme screen, e.g.
+     * {@code //*[@text="Checkbox 1"]}. Used to confirm the real widget screen
+     * finished loading before interacting with an element.
+     */
+    public By widgetLabel(String text) {
+        return By.xpath("//*[@text=\"" + text + "\"]");
+    }
+
+    /** True when the given widget label is present on screen (XPath-based). */
+    public boolean isWidgetLabelDisplayed(String text) {
+        return isDisplayed(widgetLabel(text));
+    }
 }

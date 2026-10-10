@@ -4,6 +4,7 @@ import com.mahmoud.appium.config.ConfigReader;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -33,8 +34,20 @@ public class ClockPage extends BasePage {
         return AppiumBy.accessibilityId(label);
     }
 
+    /**
+     * True once the app has finished launching.
+     * <p>Uses {@code desk_clock_pager} rather than a tab-specific id: DeskClock
+     * restores whichever tab was open last, so the ids differ per tab
+     * ({@code digital_clock} on Clock, {@code timer_setup} on Timer). The pager
+     * container is present on every tab.</p>
+     */
     public boolean isLoaded() {
-        return isDisplayed(tab("digital_clock"));
+        try {
+            waitVisible(tab("desk_clock_pager"));
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
     }
 
     /** Taps a bottom-navigation tab by its accessibility label. */
@@ -49,7 +62,16 @@ public class ClockPage extends BasePage {
         return tab.getAttribute("selected").equals("true");
     }
 
-    public String currentTime() {
-        return textOf(tab("digital_clock"));
+    /**
+     * XPath variant of {@link #isTabSelected(String)}. Uses XPath (rather than the
+     * accessibility-id locator) to assert the tab node carries {@code selected="true"}.
+     */
+    public boolean isTabSelectedByXpath(String label) {
+        return isDisplayed(By.xpath("//*[@content-desc=\"" + label + "\" and @selected=\"true\"]"));
+    }
+
+    /** Reads the text of the toolbar title, e.g. "Timer", via XPath. */
+    public String toolbarTitle() {
+        return textOf(By.xpath("//*[@resource-id=\"" + pkg() + ":id/action_bar_title\"]"));
     }
 }

@@ -33,10 +33,16 @@ public class BuiltInAppEmulatorTest extends BaseTest {
 
         Assert.assertTrue(clock.isLoaded(), "The Google Clock app did not open");
 
-        // Interact with an element: open the Timer tab.
+        // Interact with an element: open the Timer tab (located by accessibility id).
         clock.openTab("Timer");
 
         ScreenshotUtil.capture(driver, "phase2-builtin-clock");
+
+        // Verify the interaction worked - accessibility-id attribute check.
         Assert.assertTrue(clock.isTabSelected("Timer"), "The Timer tab was not selected");
+        // Same check expressed as an XPath locator.
+        Assert.assertTrue(clock.isTabSelectedByXpath("Timer"),
+                "XPath did not report the Timer tab as selected");
+        Assert.assertEquals(clock.toolbarTitle(), "Timer", "The Timer screen did not open");
     }
 }

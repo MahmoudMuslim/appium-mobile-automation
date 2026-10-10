@@ -127,6 +127,7 @@ Install the following and add them to `PATH`.
    ```
    All **necessary** checks should be green (`no fix needed`). The captured output of
    the final clean run is saved at [`docs/appium-doctor-output.txt`](docs/appium-doctor-output.txt)
+   and rendered as an image in [`docs/screenshots/appium-doctor.png`](docs/screenshots/appium-doctor.png)
    (deliverable). Optional-dependency warnings (opencv4nodejs, mjpeg-consumer,
    bundletool, gstreamer) are informational only.
 
@@ -338,18 +339,31 @@ All screenshots referenced above are in [`docs/screenshots/`](docs/screenshots/)
 
 ## 7. Locator strategy
 
-Locators were identified with **Appium Inspector**:
+Locators were identified with **Appium Inspector**. All three strategies required by
+the task are used in the Phase 2 tests:
+
+| Strategy | Where it is used | Example |
+|----------|------------------|---------|
+| **ID** (resource-id) | Calculator digits/operators, ApiDemos widgets, Clock | `By.id("com.miui.calculator:id/btn_equal_s")`, `By.id("io.appium.android.apis:id/check1")` |
+| **XPath** | Clock tab-selected check + toolbar title, ApiDemos widget label | `By.xpath("//*[@content-desc=\"Timer\" and @selected=\"true\"]")`, `By.xpath("//*[@text=\"Checkbox 1\"]")` |
+| **Accessibility ID** | Google Clock bottom-nav tabs (maps to `content-desc`) | `AppiumBy.accessibilityId("Timer")` |
+| UiAutomator (bonus) | ApiDemos menu rows, which have no stable resource-id | `AppiumBy.androidUIAutomator("new UiSelector().text(\"Views\")")` |
 
 | App | Locator type | Example |
 |-----|--------------|---------|
 | Calculator | resource-id | `com.google.android.calculator:id/eq` (emulator) / `com.miui.calculator:id/btn_equal_s` (MIUI) |
+| Google Clock | resource-id + accessibility-id + XPath | `:id/desk_clock_pager`, `accessibilityId("Timer")`, `//*[@text="Timer"]` |
 | ApiDemos menus | UiAutomator text | `new UiSelector().text("Views")` |
-| ApiDemos widgets | resource-id | `io.appium.android.apis:id/seek`, `:id/drag_dot_1`, `:id/check1` |
+| ApiDemos widgets | resource-id + XPath | `io.appium.android.apis:id/seek`, `:id/drag_dot_1`, `//*[@text="Checkbox 1"]` |
 | Chrome web | id / CSS | `#login-button`, `.title` |
 
 Calculator resource-ids differ between vendors, so they are **not** hard-coded:
 they live in `config.properties` under `calculator.*` and can be overridden with
 `-Dcalculator.equalsId=...` at runtime (see [above](#running-on-a-real-device-example-xiaomi--miui)).
+
+Google Clock restores whichever tab was open last, so readiness is asserted on
+`desk_clock_pager` (present on every tab) rather than a tab-specific id — this
+keeps the test repeatable regardless of the app's last state.
 
 If a device image ships different resource-ids, update the constants in the
 relevant `*Page` class after inspecting the screen.
@@ -359,7 +373,7 @@ relevant `*Page` class after inspecting the screen.
 ## 8. Deliverables checklist
 
 - [x] Public GitHub repository with all test scripts + this README.
-- [x] `appium-doctor --android` output — [`docs/appium-doctor-output.txt`](docs/appium-doctor-output.txt).
+- [x] `appium-doctor --android` output — [`docs/screenshots/appium-doctor.png`](docs/screenshots/appium-doctor.png) (raw text: [`appium-doctor-output.txt`](docs/appium-doctor-output.txt)) — shows *necessary dependencies completed, no fix needed*.
 - [x] Built-in app screenshot **on the AVD emulator** — [`docs/screenshots/phase2-builtin-app-emulator-clock.png`](docs/screenshots/phase2-builtin-app-emulator-clock.png)
 - [x] Built-in Calculator screenshot (device with Google Calculator) — `docs/screenshots/phase2-builtin-calculator.png`
 - [x] APK screenshot **on the AVD emulator** — [`docs/screenshots/phase2-apk-checkbox.png`](docs/screenshots/phase2-apk-checkbox.png)
